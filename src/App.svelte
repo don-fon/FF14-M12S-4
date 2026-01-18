@@ -2,15 +2,16 @@
   // 按钮组变量
   let pseudoOrder = $state('正点先出'); // 伪人顺序
   let mobA = $state('打左右'); // A小怪
-  let avatar = $state('分摊'); // 正点分身
+  let avatarA = $state('分摊'); // 正点分身
+  let myPosition = $state(''); // 我的位置（环形按钮）
   let blackhole = $state('吸A'); // 黑洞
   let cloneDrift = $state('B安全'); // 分身漂移
 
   // 根据变量计算回想内容
   let mobAResult = $derived(mobA === '打左右' ? '23安全' : '14安全');
-  let cardinalCloneResult = $derived(avatar);
+  let cardinalCloneResult = $derived(avatarA);
   let blackholeResult = $derived(blackhole === '吸A' ? 'A被吸' : 'C被吸');
-  let mobSafeZone = $derived((mobA === '打左右') === (blackholeResult === 'C被吸') ? '前后安全' : '左右安全');
+  let mobSafeZone = $derived((mobA === '打左右') === (blackholeResult === 'C被吸') ? '左右安全' : '前后安全');
 
   let solution = $state('盗火改'); // 解法
   let solutionPseudo = {
@@ -19,7 +20,42 @@
   let solutionAvatar = {
     '盗火改': '根据连线伪人位置，同色点接线；AB34接分摊，CD12接钢铁',
   }
-  let solution44 = {
+  let solution44Avatar = {
+    '盗火改': {
+      '分摊': [
+        '[A][1][B][2]在1号点，[C][3][D][4]在4号点',
+        '[1]出人群到2号点外，[3]出人群到3号点外',
+        '[A][1][B][2]在1号点，[C][3][D][4]在4号点',
+        '[2]出人群到2号点外，[4]出人群到3号点外',
+      ],
+      '钢铁': [
+        '[A]出人群到2号点外，[C]出人群到3号点外',
+        '[A][1][B][2]在1号点，[C][3][D][4]在4号点',
+        '[B]出人群到2号点外，[D]出人群到3号点外',
+        '[A][1][B][2]在1号点，[C][3][D][4]在4号点',
+      ],
+    },
+  }
+
+  // 解析带标记的文本，返回 {text, isPosition}[] 数组
+  function parsePositionText(text) {
+    const parts = [];
+    let lastIndex = 0;
+    const regex = /\[([A-D1-4])\]/g;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push({ text: text.slice(lastIndex, match.index), isPosition: false });
+      }
+      parts.push({ text: match[1], isPosition: true, pos: match[1] });
+      lastIndex = regex.lastIndex;
+    }
+    if (lastIndex < text.length) {
+      parts.push({ text: text.slice(lastIndex), isPosition: false });
+    }
+    return parts;
+  }
+  let solution44Pseudo = {
     '盗火改': {
       '正点先出': ['MT组去A，ST组去B', 'MT组去4，ST组去3'],
       '斜点先出': ['MT组去4，ST组去3', 'MT组去A，ST组去B'],
@@ -57,7 +93,7 @@
   <!-- 第3块：3小怪 - 蓝色 -->
   <section class="block blue">
     <div class="content">
-      <h2>3小怪出现</h2>
+      <h2>《自我复制》3小怪出现</h2>
       <div class="button-group">
         <span class="label">【A小怪方向】</span>
         <button class:active={mobA === '打左右'} onclick={() => mobA = '打左右'}>打左右 (23安全)</button>
@@ -69,14 +105,28 @@
   <!-- 第4块：8分身 - 绿色 -->
   <section class="block green">
     <div class="content">
-      <h2>8分身出现，接线</h2>
+      <h2>《自我复制》8分身出现，接线</h2>
       <div class="note">
         <p>[{solution}] {solutionAvatar[solution]}</p>
       </div>
+      
+      <!-- 环形按钮组 -->
+      <div class="circle-buttons">
+        <button class="pos-btn red" class:active={myPosition === 'A'} style="--angle: 0deg" onclick={() => myPosition = 'A'}>A</button>
+        <button class="pos-btn red" class:active={myPosition === '1'} style="--angle: 45deg" onclick={() => myPosition = '1'}>1</button>
+        <button class="pos-btn yellow" class:active={myPosition === 'B'} style="--angle: 90deg" onclick={() => myPosition = 'B'}>B</button>
+        <button class="pos-btn yellow" class:active={myPosition === '2'} style="--angle: 135deg" onclick={() => myPosition = '2'}>2</button>
+        <button class="pos-btn blue" class:active={myPosition === 'C'} style="--angle: 180deg" onclick={() => myPosition = 'C'}>C</button>
+        <button class="pos-btn blue" class:active={myPosition === '3'} style="--angle: 225deg" onclick={() => myPosition = '3'}>3</button>
+        <button class="pos-btn purple" class:active={myPosition === 'D'} style="--angle: 270deg" onclick={() => myPosition = 'D'}>D</button>
+        <button class="pos-btn purple" class:active={myPosition === '4'} style="--angle: 315deg" onclick={() => myPosition = '4'}>4</button>
+        <span class="circle-center">{myPosition || '?'}</span>
+      </div>
+
       <div class="button-group">
         <span class="label">【正点分身】</span>
-        <button class:active={avatar === '分摊'} onclick={() => avatar = '分摊'}>分摊</button>
-        <button class:active={avatar === '钢铁'} onclick={() => avatar = '钢铁'}>钢铁</button>
+        <button class:active={avatarA === '分摊'} onclick={() => avatarA = '分摊'}>分摊</button>
+        <button class:active={avatarA === '钢铁'} onclick={() => avatarA = '钢铁'}>钢铁</button>
       </div>
       
       <div class="recall">
@@ -105,7 +155,22 @@
         <span class="recall-value">{cardinalCloneResult}</span>
         <span class="recall-desc">→ 按接线分组分摊</span>
       </div>
-      
+      <div class="note">
+        <p class="note-title">[{solution}]</p>
+        <ol class="rounds-list">
+          {#each solution44Avatar[solution][avatarA] as round}
+            <li>
+              {#each parsePositionText(round) as part}
+                {#if part.isPosition}
+                  <span class="pos-mark" class:highlight={myPosition === part.pos}>{part.text}</span>
+                {:else}
+                  {part.text}
+                {/if}
+              {/each}
+            </li>
+          {/each}
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -117,11 +182,11 @@
         <div class="tower dark">
           <p>往外引导激光，死宣</p>
         </div>
-        <div class="tower wind">
-          <p>靠近塔边向对面击飞</p>
-        </div>
         <div class="tower fire">
           <p>不要移动</p>
+        </div>
+        <div class="tower wind">
+          <p>靠近塔边向对面击飞</p>
         </div>
         <div class="tower earth">
           <p>躲石笋</p>
@@ -150,7 +215,7 @@
         <span class="recall-value">{pseudoOrder}</span>
       </div>
       <div class="note">
-        <p>[{solution}] {solution44[solution][pseudoOrder][0]}</p>
+        <p>[{solution}] {solution44Pseudo[solution][pseudoOrder][0]}</p>
       </div>
     </div>
   </section>
@@ -178,7 +243,7 @@
         <span class="recall-value">{pseudoOrder === '正点先出' ? '斜点' : '正点'}</span>
       </div>
       <div class="note">
-        <p>[{solution}] {solution44[solution][pseudoOrder][1]}</p>
+        <p>[{solution}] {solution44Pseudo[solution][pseudoOrder][1]}</p>
       </div>
       
       <h3>1小怪判定</h3>
@@ -212,14 +277,6 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-  }
-
-  h1 {
-    text-align: center;
-    color: #fff;
-    font-size: 1.8rem;
-    margin-bottom: 30px;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   }
 
   .block {
@@ -286,6 +343,35 @@
     margin: 0;
     font-size: 0.9rem;
     color: #666;
+  }
+
+  .note-title {
+    font-weight: bold;
+    margin-bottom: 8px !important;
+  }
+
+  .rounds-list {
+    margin: 0;
+    padding-left: 1.5em;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .rounds-list li {
+    margin: 4px 0;
+    line-height: 1.5;
+  }
+
+  .pos-mark {
+    font-weight: bold;
+  }
+
+  .pos-mark.highlight {
+    background: #ffc107;
+    color: #212529;
+    padding: 1px 4px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
 
   .button-group {
@@ -361,12 +447,6 @@
     gap: 8px;
   }
 
-  .action {
-    font-weight: bold;
-    color: #28a745;
-    font-size: 1.1rem;
-  }
-
   .tower-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -378,11 +458,6 @@
     padding: 12px;
     border-radius: 8px;
     text-align: center;
-  }
-
-  .tower strong {
-    display: block;
-    margin-bottom: 5px;
   }
 
   .tower p {
@@ -426,11 +501,94 @@
     color: #5a4530;
   }
 
-  .end {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #28a745;
+  /* 环形按钮组 */
+  .circle-buttons {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 20px auto;
+  }
+
+  .pos-btn {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.3);
     font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    /* 从中心向外偏移 */
+    left: 50%;
+    top: 50%;
+    transform: 
+      translate(-50%, -50%) 
+      rotate(var(--angle)) 
+      translateY(-60px) 
+      rotate(calc(-1 * var(--angle)));
+  }
+
+  .pos-btn:hover {
+    transform: 
+      translate(-50%, -50%) 
+      rotate(var(--angle)) 
+      translateY(-60px) 
+      rotate(calc(-1 * var(--angle)))
+      scale(1.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .pos-btn.red {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    color: #fff;
+  }
+
+  .pos-btn.yellow {
+    background: linear-gradient(135deg, #ffd93d 0%, #f5c518 100%);
+    color: #333;
+  }
+
+  .pos-btn.blue {
+    background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
+    color: #fff;
+  }
+
+  .pos-btn.purple {
+    background: linear-gradient(135deg, #da77f2 0%, #be4bdb 100%);
+    color: #fff;
+  }
+
+  .pos-btn.active {
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px #333;
+    transform: 
+      translate(-50%, -50%) 
+      rotate(var(--angle)) 
+      translateY(-60px) 
+      rotate(calc(-1 * var(--angle)))
+      scale(1.2);
+  }
+
+  .circle-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    background: rgba(255, 255, 255, 0.8);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #999;
   }
 
   @media (max-width: 600px) {
@@ -442,21 +600,8 @@
       padding: 15px;
     }
 
-    h1 {
-      font-size: 1.4rem;
-    }
-
     h2 {
       font-size: 1.1rem;
-    }
-
-    .button-group {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .tower-grid {
-      grid-template-columns: 1fr;
     }
   }
 </style>
