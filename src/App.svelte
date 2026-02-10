@@ -15,23 +15,28 @@
 
   let solution = $state('盗火改'); // 解法
   let solutionPseudo = {
-    '盗火改': '找自己连线的伪人',
+    '盗火改': [
+      '找自己连线的伪人',
+      '[A][B][3][4]准备接分摊',
+      '[1][C]准备接钢铁（先出）',
+      '[2][D]准备接钢铁（后出）'
+    ],
   }
   let solutionAvatar = {
-    '盗火改': '根据连线伪人位置，同色点接线；AB34接分摊，CD12接钢铁',
+    '盗火改': '同色点接线；[A][B][3][4]接分摊，[C][D][1][2]接钢铁',
   }
   let solution44Avatar = {
     '盗火改': {
       '分摊': [
         '[A][1][B][2]在1号点，[C][3][D][4]在4号点',
-        '[1]出人群到2号点外，[3]出人群到3号点外',
+        '[1]出人群到2号点外，[C]出人群到3号点外',
         '[A][1][B][2]在1号点，[C][3][D][4]在4号点',
-        '[2]出人群到2号点外，[4]出人群到3号点外',
+        '[2]出人群到2号点外，[D]出人群到3号点外',
       ],
       '钢铁': [
-        '[A]出人群到2号点外，[C]出人群到3号点外',
+        '[1]出人群到2号点外，[C]出人群到3号点外',
         '[A][1][B][2]在1号点，[C][3][D][4]在4号点',
-        '[B]出人群到2号点外，[D]出人群到3号点外',
+        '[2]出人群到2号点外，[D]出人群到3号点外',
         '[A][1][B][2]在1号点，[C][3][D][4]在4号点',
       ],
     },
@@ -84,9 +89,39 @@
         <button class:active={pseudoOrder === '正点先出'} onclick={() => pseudoOrder = '正点先出'}>正点先出</button>
         <button class:active={pseudoOrder === '斜点先出'} onclick={() => pseudoOrder = '斜点先出'}>斜点先出</button>
       </div>
-      <div class="note">
-        <p>[{solution}] {solutionPseudo[solution]}</p>
+
+      <div style="display:flex">
+        <div class="note">
+          <p class="note-title">[{solution}]</p>
+          <ol class="rounds-list">
+            {#each solutionPseudo[solution] as round}
+              <li>
+                {#each parsePositionText(round) as part}
+                  {#if part.isPosition}
+                    <span class="pos-mark" class:highlight={myPosition === part.pos}>{part.text}</span>
+                  {:else}
+                    {part.text}
+                  {/if}
+                {/each}
+              </li>
+            {/each}
+          </ol>
+        </div>
+        <!-- 环形按钮组 -->
+        <div class="circle-buttons">
+          <button class="pos-btn red" class:active={myPosition === 'A'} style="--angle: 0deg" onclick={() => myPosition = 'A'}>A</button>
+          <button class="pos-btn red" class:active={myPosition === '1'} style="--angle: 45deg" onclick={() => myPosition = '1'}>1</button>
+          <button class="pos-btn yellow" class:active={myPosition === 'B'} style="--angle: 90deg" onclick={() => myPosition = 'B'}>B</button>
+          <button class="pos-btn yellow" class:active={myPosition === '2'} style="--angle: 135deg" onclick={() => myPosition = '2'}>2</button>
+          <button class="pos-btn blue" class:active={myPosition === 'C'} style="--angle: 180deg" onclick={() => myPosition = 'C'}>C</button>
+          <button class="pos-btn blue" class:active={myPosition === '3'} style="--angle: 225deg" onclick={() => myPosition = '3'}>3</button>
+          <button class="pos-btn purple" class:active={myPosition === 'D'} style="--angle: 270deg" onclick={() => myPosition = 'D'}>D</button>
+          <button class="pos-btn purple" class:active={myPosition === '4'} style="--angle: 315deg" onclick={() => myPosition = '4'}>4</button>
+          <span class="circle-center">{myPosition || '?'}</span>
+        </div>
       </div>
+      
+
     </div>
   </section>
 
@@ -107,20 +142,13 @@
     <div class="content">
       <h2>《自我复制》8分身出现，接线</h2>
       <div class="note">
-        <p>[{solution}] {solutionAvatar[solution]}</p>
-      </div>
-      
-      <!-- 环形按钮组 -->
-      <div class="circle-buttons">
-        <button class="pos-btn red" class:active={myPosition === 'A'} style="--angle: 0deg" onclick={() => myPosition = 'A'}>A</button>
-        <button class="pos-btn red" class:active={myPosition === '1'} style="--angle: 45deg" onclick={() => myPosition = '1'}>1</button>
-        <button class="pos-btn yellow" class:active={myPosition === 'B'} style="--angle: 90deg" onclick={() => myPosition = 'B'}>B</button>
-        <button class="pos-btn yellow" class:active={myPosition === '2'} style="--angle: 135deg" onclick={() => myPosition = '2'}>2</button>
-        <button class="pos-btn blue" class:active={myPosition === 'C'} style="--angle: 180deg" onclick={() => myPosition = 'C'}>C</button>
-        <button class="pos-btn blue" class:active={myPosition === '3'} style="--angle: 225deg" onclick={() => myPosition = '3'}>3</button>
-        <button class="pos-btn purple" class:active={myPosition === 'D'} style="--angle: 270deg" onclick={() => myPosition = 'D'}>D</button>
-        <button class="pos-btn purple" class:active={myPosition === '4'} style="--angle: 315deg" onclick={() => myPosition = '4'}>4</button>
-        <span class="circle-center">{myPosition || '?'}</span>
+        <p>[{solution}] {#each parsePositionText(solutionAvatar[solution]) as part}
+                {#if part.isPosition}
+                  <span class="pos-mark" class:highlight={myPosition === part.pos}>{part.text}</span>
+                {:else}
+                  {part.text}
+                {/if}
+              {/each}</p>
       </div>
 
       <div class="button-group">
