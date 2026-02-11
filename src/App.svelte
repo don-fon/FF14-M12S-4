@@ -253,7 +253,7 @@
       <div class="recall-multi">
         <div class="recall">
           <span class="recall-label">回想【AC小怪漂移】【打上下小怪】【黑洞吸走小怪】</span>
-          <span class="recall-value">{mobMove} {safeMob} {blackhole}</span>
+          <span class="recall-value">{mobMove} {safeMob}打上下 吸{blackhole}</span>
           <span class="recall-desc">→ {mobMove[0]}{mobSafeZone}</span>
         </div>
       </div>
@@ -276,7 +276,7 @@
       <div class="recall-multi">
         <div class="recall">
           <span class="recall-label">回想【打上下小怪】【黑洞吸走小怪】</span>
-          <span class="recall-value">{safeMob} {blackhole}</span>
+          <span class="recall-value">{safeMob}打上下 吸{blackhole}</span>
           <span class="recall-desc">→ {mobSafeZone}</span>
         </div>
       </div>
