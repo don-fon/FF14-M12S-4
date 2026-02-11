@@ -1,17 +1,15 @@
 <script>
   // 按钮组变量
   let pseudoOrder = $state('正点先出'); // 伪人顺序
-  let mobA = $state('打左右'); // A小怪
+  let safeMob = $state('A'); // AC谁打上下
   let avatarA = $state('分摊'); // 正点分身
   let myPosition = $state(''); // 我的位置（环形按钮）
-  let blackhole = $state('吸A'); // 黑洞
-  let cloneDrift = $state('B安全'); // 分身漂移
+  let blackhole = $state('A'); // 黑洞
+  let mobMove = $state('B安全'); // 小怪漂移
 
   // 根据变量计算回想内容
-  let mobAResult = $derived(mobA === '打左右' ? '23安全' : '14安全');
   let cardinalCloneResult = $derived(avatarA);
-  let blackholeResult = $derived(blackhole === '吸A' ? 'A被吸' : 'C被吸');
-  let mobSafeZone = $derived((mobA === '打左右') === (blackholeResult === 'C被吸') ? '左右安全' : '前后安全');
+  let mobSafeZone = $derived(safeMob === blackhole ? '左右安全' : '前后安全');
 
   let solution = $state('盗火改'); // 解法
   let solutionPseudo = {
@@ -130,9 +128,9 @@
     <div class="content">
       <h2>《自我复制》3小怪出现</h2>
       <div class="button-group">
-        <span class="label">【A小怪方向】</span>
-        <button class:active={mobA === '打左右'} onclick={() => mobA = '打左右'}>打左右 (23安全)</button>
-        <button class:active={mobA === '打上下'} onclick={() => mobA = '打上下'}>打上下 (14安全)</button>
+        <span class="label">【打上下小怪】</span>
+        <button class:active={safeMob === 'A'} onclick={() => safeMob = 'A'}>A打上下 (14安全)</button>
+        <button class:active={safeMob === 'C'} onclick={() => safeMob = 'C'}>C打上下 (23安全)</button>
       </div>
     </div>
   </section>
@@ -158,8 +156,8 @@
       </div>
       
       <div class="recall">
-        <span class="recall-label">线变实后，回想【A小怪方向】，躲扇形</span>
-        <span class="recall-value">{mobAResult}</span>
+        <span class="recall-label">线变实后，回想【打上下小怪】，躲扇形</span>
+        <span class="recall-value">{safeMob}左右安全</span>
       </div>
     </div>
   </section>
@@ -222,14 +220,14 @@
       </div>
       <p>引导远近扇形打人</p>
       <div class="button-group">
-        <span class="label">【黑洞吸走1小怪】</span>
-        <button class:active={blackhole === '吸A'} onclick={() => blackhole = '吸A'}>吸A</button>
-        <button class:active={blackhole === '吸C'} onclick={() => blackhole = '吸C'}>吸C</button>
+        <span class="label">【黑洞吸走小怪】</span>
+        <button class:active={blackhole === 'A'} onclick={() => blackhole = 'A'}>吸A</button>
+        <button class:active={blackhole === 'C'} onclick={() => blackhole = 'C'}>吸C</button>
       </div>
       <div class="button-group">
-        <span class="label">【AC分身漂移】</span>
-        <button class:active={cloneDrift === 'B安全'} onclick={() => cloneDrift = 'B安全'}>B安全</button>
-        <button class:active={cloneDrift === 'D安全'} onclick={() => cloneDrift = 'D安全'}>D安全</button>
+        <span class="label">【AC小怪漂移】</span>
+        <button class:active={mobMove === 'B安全'} onclick={() => mobMove = 'B安全'}>B安全</button>
+        <button class:active={mobMove === 'D安全'} onclick={() => mobMove = 'D安全'}>D安全</button>
       </div>
     </div>
   </section>
@@ -254,9 +252,9 @@
       <h2>2小怪判定</h2>
       <div class="recall-multi">
         <div class="recall">
-          <span class="recall-label">回想【分身漂移】【A小怪方向】【黑洞】</span>
-          <span class="recall-value">{cloneDrift} {mobA} {blackholeResult}</span>
-          <span class="recall-desc">→ {cloneDrift[0]}{mobSafeZone}</span>
+          <span class="recall-label">回想【AC小怪漂移】【打上下小怪】【黑洞吸走小怪】</span>
+          <span class="recall-value">{mobMove} {safeMob} {blackhole}</span>
+          <span class="recall-desc">→ {mobMove[0]}{mobSafeZone}</span>
         </div>
       </div>
     </div>
@@ -277,8 +275,8 @@
       <h3>1小怪判定</h3>
       <div class="recall-multi">
         <div class="recall">
-          <span class="recall-label">回想【A小怪方向】【黑洞】</span>
-          <span class="recall-value">{mobA} {blackholeResult}</span>
+          <span class="recall-label">回想【打上下小怪】【黑洞吸走小怪】</span>
+          <span class="recall-value">{safeMob} {blackhole}</span>
           <span class="recall-desc">→ {mobSafeZone}</span>
         </div>
       </div>
